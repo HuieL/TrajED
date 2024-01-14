@@ -213,8 +213,16 @@ class EncoderBlock(nn.Module):
 
         return x
 
+class BiraryAttn(nn.Module):
+    def __init__(self, threhold = 0):
+        super(BiraryAttn, self).__init__()
+        self.threhold = threhold
+
+    def forward(self, x):
+        return (x>self.threhold).float()
+
 class Trajformer(nn.Module):
-    def __init__(self, num_classes = 2, num_layers = 3, dim_hidden = 16, freq = 30, num_kernels = 6, input_dim_st = 4, input_dim_text = 768, alpha = 0.0, scaler = 10e-7, num_heads = 1, dropout=0.0, return_attention = False):
+    def __init__(self, num_classes = 2, num_layers = 3, dim_hidden = 16, freq = 30, num_kernels = 6, input_dim_st = 4, input_dim_text = 768, alpha = 0.0, scaler = 10e-7, num_heads = 1, dropout=0.0, attn_threhold = 0, return_attention = True):
         super().__init__()
         self.num_heads = num_heads
         self.return_attention = return_attention
@@ -222,6 +230,9 @@ class Trajformer(nn.Module):
 
         self.emded = fixed_embed(dim_feedforward = dim_hidden, input_dim_st = input_dim_st, input_dim_text = input_dim_text, freq = freq, num_kernels = num_kernels, alpha = alpha, scaler = scaler)
         self.layers = nn.ModuleList([EncoderBlock(input_dim = self.encoder_input_dim, num_heads = num_heads, dim_feedforward = dim_hidden, dropout = dropout) for _ in range(num_layers)])
+        self.attn_linear = nn.Sequential(nn.Linear(freq, 1, bias=True),
+                           nn.Sigmoid())
+        self.binary_attn = BiraryAttn(attn_threhold)
         self.projection = nn.Linear(self.encoder_input_dim * freq, num_classes)
 
     def forward(self, x, t, mask=None):
@@ -239,9 +250,10 @@ class Trajformer(nn.Module):
             if self.return_attention:
                 _, attn_map = layer.self_attn(x_, mask=mask, return_attention=self.return_attention)
                 attention_maps.append(attn_map)
+        attn = self.binary_attn(self.attn_linear(attention_maps[-1].squeeze(1)).squeeze(-1))
         #Projection layer:
         x_ = self.projection(x_.reshape(x_.shape[0], -1))
         if self.return_attention: 
-            return x_, attention_maps
+            return x_, attn
         else: 
             return x_
