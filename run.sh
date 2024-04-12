@@ -17,7 +17,7 @@ python -u run.py \
   --input_dim_st 4 \
   --input_dim_text 768 \
   --alpha 0.1 \
-  --scaler 0.001 \
+  --scaler 0.5 \
   --num_heads 1 \
   --dropout 0.5 \
   --attn_threhold 0.1 \
