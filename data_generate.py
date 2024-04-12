@@ -4,7 +4,6 @@ import warnings
 from transformers import BertTokenizer, BertModel
 import heapq
 
-
 warnings.filterwarnings("ignore")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
@@ -78,8 +77,8 @@ def text_trajectory(df, userid):
 
     return st_sequence, text_sequence, index
 
-df = pd.read_csv(".\dataset\geolife\geolife-dataset_full-20-agents-0.8-normal-portion.tsv", sep = " ")
 n_neighbors = 1
+df = pd.read_csv(".\dataset\geolife\geolife-dataset_full-20-agents-0.8-normal-portion.tsv", sep = " ")
 sampling_ids = torch.load(".\dataset\geolife\sampled_ids.pt")
 user_id, st_sequence, text_sequence, index, label = [], [], [], [], []
 for j, uid in enumerate(tqdm(sampling_ids)):
