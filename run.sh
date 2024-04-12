@@ -16,7 +16,7 @@ python -u run.py \
   --num_kernels 8 \
   --input_dim_st 4 \
   --input_dim_text 768 \
-  --alpha 0 \
+  --alpha 0.1 \
   --scaler 0.001 \
   --num_heads 1 \
   --dropout 0.5 \
