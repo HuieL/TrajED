@@ -16,8 +16,8 @@ python -u run.py \
   --num_kernels 8 \
   --input_dim_st 4 \
   --input_dim_text 768 \
-  --alpha 0.1 \
-  --scaler 0.5 \
+  --alpha 0.001 \
+  --scaler 0.25 \
   --num_heads 1 \
   --dropout 0.5 \
   --attn_threhold 0.1 \
