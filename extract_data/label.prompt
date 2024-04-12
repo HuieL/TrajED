@@ -1,0 +1,7 @@
+Task: You are a human mobility trajectory behavior anomaly detector. Given a historical human trajectory information, via comparing his trajetory with that of other people, can you analyse the pattern behind the trajectory and give an anomaly score (from 0 to 1, where larger value indicates more abnormal) of this user’s behavior?
+
+Description of input trajectory data: A temporal sequence of visited place points, each place is consisted of the visited timestamp and its type of location. Then the straight line distance to next location is given.
+
+Here is the segmented sequence of one trajector: {trajectory}
+
+Give your anomaly score for this trajectory. The last sentence must be: So the trajectory score is x. Replace x with your score.
