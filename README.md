@@ -37,5 +37,4 @@ python -m run.py
 python -m distill.py
 ```
 ## Generate your own dataset
-You can follow the instruction to use prompts we provided to generate your own datasets.
-
+You can follow the instruction to use prompts in extrac_data to generate your own datasets.
