@@ -78,10 +78,8 @@ def text_trajectory(df, userid):
 
     return st_sequence, text_sequence, index
 
-raw_data_path = ".\dataset\geolife\geolife-dataset_full-20-agents-0.8-normal-portion.tsv"
-df = pd.read_csv(raw_data_path, sep = " ")
+df = pd.read_csv(".\dataset\geolife\geolife-dataset_full-20-agents-0.8-normal-portion.tsv", sep = " ")
 n_neighbors = 1
-
 sampling_ids = torch.load(".\dataset\geolife\sampled_ids.pt")
 user_id, st_sequence, text_sequence, index, label = [], [], [], [], []
 for j, uid in enumerate(tqdm(sampling_ids)):
@@ -95,19 +93,12 @@ users = [{'id': user_id[i], 'st_sequence': st_sequence[i], 'text_sequence': text
 with open(r'C:\Users\HuieL\VScodes\TrajectoryDistiallation\datasets\geolife\data_info.pkl', 'wb') as handle:
     pkl.dump(users, handle)
 
-file = "C:.\dataset\geolife\gpt4_outputs.csv"
-dd = pd.read_csv(file, sep = ",")
 
 k = 20
-scores = [dd.iloc[i]["anomaly_score"] for i in range(len(dd))]
-user_ids = [int(dd.iloc[i]["userid"]) for i in range(len(dd))]
+df = pd.read_csv(".\dataset\geolife\gpt4_outputs.csv", sep = ",")
+scores = [df.iloc[i]["anomaly_score"] for i in range(len(df))]
+user_ids = [int(df.iloc[i]["userid"]) for i in range(len(df))]
 users = topk_hits(k, scores, user_ids)
-print(users)
-ipdb.set_trace()
-
-
-path = r"C:\Users\HuieL\VScodes\TrajectoryDistiallation\datasets\geolife\gpt4_outputs.csv"
-df = pd.read_csv(path, sep = ",")
 
 exp_ids, exps = [], []
 for i in range(len(df)):
@@ -116,12 +107,9 @@ for i in range(len(df)):
         exps.append([int(x) for x in exp])
         exp_ids.append(int(df.iloc[i]["userid"]))
 
-print(exp_ids)
-
 llm_label, llm_attn = [], []
-data = pkl.load(open(r"C:\Users\HuieL\VScodes\TrajectoryDistiallation\datasets\geolife\data_info.pkl", "rb"))
+data = pkl.load(open(".\dataset\geolife\data_info.pkl", "rb"))
 ids = [data[i]["id"] for i in range(len(data))]
-
 
 for i in range(len(ids)):
     if ids[i] in users:
@@ -142,8 +130,6 @@ for i in tqdm(range(len(data))):
     lens.append(data[i]["length"])
     label.append(data[i]["label"])
 
-
 users = [{'id': user_id[i], 'st_sequence': st_sequence[i], 'text_sequence': text_sequence[i], 'length': lens[i], 'label': label[i], "llm_label": llm_label[i], "llm_attn": llm_attn[i]} for i in range(len(label))]
-with open(r'C:\Users\HuieL\VScodes\TrajectoryDistiallation\datasets\geolife\data_info_new.pkl', 'wb') as handle:
+with open('.\dataset\geolife\data_info.pkl', 'wb') as handle:
     pkl.dump(users, handle)
-
