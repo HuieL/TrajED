@@ -10,7 +10,7 @@ T = TypeVar("T")
 @dataclass(frozen=True)
 class Item:
     trajectory: str
-    comparison_trajectories: List[str]
+    index: List[int]
     id: Optional[str] = None
     content: Optional[str] = None
 
@@ -27,26 +27,16 @@ def get_prompt(
     task_name: str,
 ):
     if task_name == "question":
-        prompt_filename = "question.prompt"
+        prompt_filename = "nola_question.prompt"
     else:
-        prompt_filename = "message.prompt"
+        prompt_filename = "nola.prompt"
 
     with open(PROMPTS_ROOT / prompt_filename) as f:
         prompt_template = f.read().rstrip("\n")
 
-    comprisons = task_item.comparison_trajectories
-
-    # Format the potential categories into strings
-    formatted_comprison_texts = []
-    for neighbor_index, neighbor in enumerate(comprisons):
-        formatted_neighbors = f"Person [{neighbor_index+1}]({neighbor}) "
-        formatted_comprison_texts.append(
-            formatted_neighbors
-        )
-
     return_node_text = prompt_template.format(
             trajectory=task_item.trajectory,
-            comparison_trajectories="\n".join(formatted_comprison_texts),
+            index=task_item.index,
             )
     
     return return_node_text
