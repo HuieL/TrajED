@@ -1,4 +1,4 @@
-**Impact of different fusion of spatio-temporal features and text features (in Acc)**
+**Impact of different fusion of spatio-temporal features and text features (in ACC)**
 
 | BJ             | \alpha = 1   | \alpha = 0     | \alpha = 0.1      | \alpha = 0.001  |
 | ------------------- | ------- | ------- | ------- | ------- |
