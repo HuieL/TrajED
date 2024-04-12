@@ -33,7 +33,7 @@ Train SetFormer and explanation generator sperately.
 ```
 # Training SeTFormer supervised by LLMs' explanations
 python -m run.py
-# Distill LLMs' reasoning ability to the explanation generator
+# A simplified version for fast reproducibility: Distilling the LLM's reasoning ability to the explanation generator
 python -m distill.py
 ```
 ## Generate your own dataset
