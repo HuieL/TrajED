@@ -1,0 +1,8 @@
+Task: You are a human mobility trajectory behavior anomaly detector. Given a historical human trajectory information, can you analyze the patterns behind the trajectory?
+
+Below is a sequence of trajctory of one trajector: 
+{trajectory}. 
+
+This trajectory is labeled as {label}.
+
+Give explanation that makes you believe this trajectory can be matched to the given label. The last sentence must be: The reason is y. Replace y with your explanation.
