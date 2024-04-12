@@ -1,1 +1,2 @@
-# TrajED
+# Code of TrajLLM
+
