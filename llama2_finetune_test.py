@@ -34,8 +34,8 @@ import warnings
 
 warnings.filterwarnings("ignore")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-dataset_name = "hunger"
-data_files = f"./datasets/{dataset_name}/pair.jsonl"
+dataset_name = "geolife"
+data_files = f"./datasets/{dataset_name}/pair_sup.jsonl"
 
 #DataFrame: {"input": ..., "output": ...}
 train_dataset = load_dataset('json', data_files=data_files, split='train')  
@@ -131,14 +131,13 @@ trainer = transformers.Trainer(
         learning_rate=2.5e-5, # Want a small lr for finetuning
         bf16=True,
         optim="adamw_hf",
-        logging_dir="./logs",        # Directory for storing logs
-        save_strategy="steps",       # Save the model checkpoint every logging step
-        save_steps=50,                # Save checkpoints every 50 steps
-        evaluation_strategy="steps", # Evaluate the model every logging step
-        eval_steps=50,               # Evaluate and save checkpoints every 50 steps
-        do_eval=True,                # Perform evaluation at the end of training
-        #report_to="wandb",           # Comment this out if you don't want to use weights & baises
-        run_name=f"{run_name}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}"          # Name of the W&B run (optional)
+        logging_dir="./logs",        
+        save_strategy="steps",       
+        save_steps=50,               
+        evaluation_strategy="steps", 
+        eval_steps=50,              
+        do_eval=True,               
+        run_name=f"{run_name}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}"          
     ),
     #data_collator=transformers.DataCollatorForLanguageModeling(tokenizer, mlm=False),
     data_collator=transformers.DataCollatorForSeq2Seq(
