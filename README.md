@@ -28,3 +28,12 @@ Since extracting labels and explanations is expensive, we provide an example dat
 # generate data_info.pkl that records features and LLMs' supervison.
 python -m data_generate.py
 ```
+## Training
+Train SetFormer and explanation generator sperately.
+```
+# Training SeTFormer supervised by LLMs' explanations
+python -m run.py
+# Distill LLMs' reasoning ability to the explanation generator
+python -m distill.py
+```
+
