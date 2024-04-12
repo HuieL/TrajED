@@ -197,8 +197,7 @@ class BiraryAttn(nn.Module):
     def __init__(self, threhold):
         super(BiraryAttn, self).__init__()
         self.threhold = nn.Parameter(torch.tensor(threhold))
-
-    #Seems better to make this threhold not trainable... ...
+        
     def forward(self, x):
         return (x>self.threhold).float()
 
