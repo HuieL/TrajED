@@ -3,7 +3,6 @@ from torch.utils.data import Dataset
 from datetime import datetime
 from torch.nn.utils.rnn import pad_sequence
 
-import ipdb
 import random
 import math
 import heapq
@@ -13,7 +12,7 @@ from datasets import DatasetDict
 from transformers import BertTokenizer, BertModel
 import warnings
 import pickle as pkl
-from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import roc_auc_score
 
 warnings.filterwarnings("ignore")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -73,7 +72,7 @@ def haversine_distance(coord1, coord2):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return R * c * 1000
 
-def TrajDatasetSplit(data_path, abnormal_samples, normal_samples, llm_label = True):
+def AnomalyDetectionDatasetSplit(data_path, abnormal_samples, normal_samples, llm_label = True):
     with open(data_path, 'rb') as f:
         datasets = pkl.load(f)
 
@@ -90,7 +89,7 @@ def TrajDatasetSplit(data_path, abnormal_samples, normal_samples, llm_label = Tr
         normal_ids = [datasets[i]["id"] for i in range(len(datasets)) if datasets[i]["label"] == "normal"]
         abnormal_sample_ids = [datasets[i]["id"] for i in range(len(datasets)) if datasets[i]["label"] == "abnormal"]
         normal_sample_ids = random.sample(normal_ids, normal_samples)
-    
+
     train_dataset = [datasets[i] for i in range(len(datasets)) if datasets[i]["id"] in abnormal_sample_ids or datasets[i]["id"] in normal_sample_ids]
     test_dataset = [datasets[i] for i in range(len(datasets)) if datasets[i]["id"] not in abnormal_sample_ids and datasets[i]["id"] not in normal_sample_ids]
 
@@ -98,7 +97,27 @@ def TrajDatasetSplit(data_path, abnormal_samples, normal_samples, llm_label = Tr
             'train': train_dataset,
             'test': test_dataset
         }), periods
-        
+
+def ClassificationDatasetSplit(data_path):
+    with open(data_path, 'rb') as f:
+        datasets = pkl.load(f)
+
+    periods = get_freq(datasets)
+    train_dataset, test_dataset = list(), list()
+
+    label_dic = list(set([item["label"] for item in datasets]))
+
+    for l in label_dic: 
+        subset = [item for item in datasets if item["label"] == l]
+        train_dataset += random.sample(subset, int(0.7*len(subset)))
+    
+    test_dataset = [sample for sample in datasets if sample not in train_dataset]
+
+    return  DatasetDict({
+            'train': train_dataset,
+            'test': test_dataset
+        }), periods
+
 class TrajectoryDataset(Dataset):
     #HybridEmbeddings: Spatio-temporal only, Text Trajectory only, Fix Trajectory, controled by para: alpha
     def __init__(self, data, periods):
@@ -122,7 +141,10 @@ class TrajectoryDataset(Dataset):
 
     def get_v(self, c1, c2, t1, t2):
         FMT = '%H:%M:%S'
-        d_t = (datetime.strptime(t2, FMT) - datetime.strptime(t1, FMT)).total_seconds()
+        try:
+            d_t = (datetime.strptime(t2, FMT) - datetime.strptime(t1, FMT)).total_seconds()
+        except:
+            d_t = t2-t1
         d = haversine_distance(c1, c2)
         if d_t != 0: v = d/d_t
         else: v = 0
@@ -130,7 +152,10 @@ class TrajectoryDataset(Dataset):
 
     def get_a(self, v1, v2, t1, t2):
         FMT = '%H:%M:%S'
-        d_t = (datetime.strptime(t2, FMT) - datetime.strptime(t1, FMT)).total_seconds()
+        try:
+            d_t = (datetime.strptime(t2, FMT) - datetime.strptime(t1, FMT)).total_seconds()
+        except:
+            d_t = t2-t1
         d_v = abs(v2-v1)
         if d_t != 0: a = d_v/d_t
         else: a = 0
@@ -138,6 +163,7 @@ class TrajectoryDataset(Dataset):
 
     def get_attn_map(self, llm_attn):
         attn_map = torch.zeros(self.periods)
+        if llm_attn == None: return attn_map
         if len(llm_attn)!=0:
             for i in llm_attn:
                 if i < self.periods: attn_map[i] = 1 
@@ -170,6 +196,11 @@ class TrajectoryDataset(Dataset):
         llm_label = self.data[idx]["llm_label"]
         #Anomaly score
         anomaly_score = self.data[idx]["anomaly_score"]
+        try:
+            anomaly_score = torch.tensor(anomaly_score, dtype=float)
+        except:
+            anomaly_score = None
+
         if torch.is_tensor(text_features): text_rep = text_features
         elif isinstance(text_features, list): text_rep = self.text_embed(text_features)
         else: raise ValueError
@@ -180,7 +211,7 @@ class TrajectoryDataset(Dataset):
             "text_embedding": text_rep, 
             "label": label,
             "llm_label": llm_label,
-            "anomaly_score": torch.tensor(anomaly_score, dtype=float)
+            "anomaly_score":anomaly_score
             }
 
 def FFT_for_Period(x, k):
@@ -190,14 +221,18 @@ def FFT_for_Period(x, k):
     frequency_list = abs(xf).mean(0).mean(-1)
     frequency_list[0] = 0
     _, top_list = torch.topk(frequency_list, k)
+    top_list = torch.where(top_list == 0, torch.tensor(1), top_list)
     period = x.shape[1] // top_list
+
     return period[1:]
 
 def get_freq(data, k=2):
     periods, most_freqs = [], []
+    C = len(data[0]["st_sequence"][0][0])
     for d in data:
         st_sequence = d["st_sequence"]
-        ts = torch.stack([torch.tensor([st_sequence[i][0][0] for i in range(len(st_sequence))], dtype = torch.float), torch.tensor([st_sequence[i][0][1] for i in range(len(st_sequence))], dtype = torch.float)])
+        st_stack = [torch.tensor([st_sequence[i][0][c] for i in range(len(st_sequence))], dtype = torch.float) for c in range(C)]
+        ts = torch.stack(st_stack)
         period = FFT_for_Period(ts.permute(1, 0).unsqueeze(0).contiguous(), k=k)
         periods.append(period)
 
@@ -315,3 +350,16 @@ def topk_hits(k, scores, user_ids, truth_ids):
         if scores[i] >= threhold and user_ids[i] in truth_ids: 
             count+=1
     return f"{count}/{k}"
+
+def auc_score(scores, user_ids, truth_ids):
+    threhold = heapq.nlargest(len(truth_ids), scores)[-1]
+    predictions, labels = [0] * len(scores), [0] * len(scores)
+
+    for i in range(len(scores)):
+        if scores[i] >= threhold and user_ids[i] in truth_ids: predictions[i] = 1
+    for id in truth_ids:
+        try: 
+            labels[user_ids.index(id)] = 1
+        except: 
+            pass
+    return f"The AUC score is {roc_auc_score(labels, predictions)}"
