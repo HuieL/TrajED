@@ -70,19 +70,11 @@ def text_trajectory(df, userid):
 
     return st_sequence, text_sequence, index
 
-path = r"E:\Data\aaai2024-outlierpaper\geolife\outliers-all-stapoints\geolife-dataset_full-20-agents-0.8-normal-portion.tsv"
+path = ".\dataset\geolife\geolife-dataset_full-20-agents-0.8-normal-portion.tsv"
 df = pd.read_csv(path, sep = " ")
 n_neighbors = 1
 
-#Work or Social: Green, Yellow, Red
-all_ids = [4, 3, 30, 163, 17, 68, 128, 22, 167, 0, 144, 39, 35, 85, 38, 84, 2, 126, 52, 41]
-#dx = pd.read_csv(r"C:\Users\HuieL\VScodes\TrajectoryDistiallation\datasets\work\gpt4_1106_outputs.csv", sep=",")
-all_ = [0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 22, 23, 24, 25, 26, 28, 30, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 50, 51, 52, 62, 65, 66, 67, 68, 71, 82, 84, 85, 92, 96, 101, 104, 111, 112, 119, 122, 125, 126, 128, 131, 140, 142, 144, 155, 163, 167, 168, 174, 179]
-normal_ids = [i for i in all_ if i not in all_ids]
-sampling_ids = all_ids + normal_ids
-print(sampling_ids)
-
-
+sampling_ids = torch.load(".\dataset\geolife\sampled_ids.pt")
 user_id, st_sequence, text_sequence, index, label = [], [], [], [], []
 for j, uid in enumerate(tqdm(sampling_ids)):
     st, text, id = text_trajectory(df, uid)
