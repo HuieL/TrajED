@@ -20,13 +20,11 @@ pip install transformers
 pip install sentencepiece
 pip install datasets
 pip install pcst_fast
-
 ```
 ## Data Preprocessing
 Since extracting labels and explanations is expensive, we provide an example dataset from GeoLife that has been data preprocessed and extracted with large language model supervision.
 
 ```
 # generate data_info.pkl that records features and LLMs' supervison.
-python -m src.dataset.preprocess.expla_graphs
-
+python -m data_generate.py
 ```
