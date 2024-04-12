@@ -1,4 +1,4 @@
-**Tab 1:Statistical information on datasets**
+**Impact of different fusion of spatio-temporal features and text features**
 
 | Dataset             | BJ      | XA      | CD      |
 | ------------------- | ------- | ------- | ------- |
