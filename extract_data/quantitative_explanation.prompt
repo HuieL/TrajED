@@ -1,0 +1,10 @@
+Task: You are a human mobility trajectory behavior anomaly detector. Given a historical human trajectory information, can you analyze the patterns behind the trajectory?
+
+The trajectory are segmented and there are total {freq} segments for each trajctory. 
+
+Below is the segmented sequence of one trajector: 
+{trajectory}. 
+
+This trajectory is labeled as {label}. The corresponding segment indices of this trajectory is: {index}
+
+Give all indices of abnormal segments in a Python List that makes you believe this trajectory can be matched to the given label. The last sentence must be: So the index list of abnormal segments is y. Replace y with your list of abnormal indices.
