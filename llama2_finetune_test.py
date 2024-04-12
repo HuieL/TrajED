@@ -30,11 +30,9 @@ from itertools import zip_longest
 
 from data_utils import chat_gpt
 from peft import prepare_model_for_kbit_training, LoraConfig, get_peft_model
-
-
 import warnings
-warnings.filterwarnings("ignore")
 
+warnings.filterwarnings("ignore")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 dataset_name = "hunger"
 data_files = f"./datasets/{dataset_name}/pair.jsonl"
