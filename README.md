@@ -22,7 +22,7 @@ pip install datasets
 pip install pcst_fast
 ```
 ## Data Preprocessing
-Since extracting labels and explanations is expensive, we provide prepprocessed dataset GeoLife. There are file size limit, other dataset can be constructed with prompts provided.
+Since extracting labels and explanations is expensive, we provide prepprocessed dataset GeoLife. There are file size limit, and other larger dataset can be constructed with prompts provided.
 
 ```
 # generate data_info.pkl that records features and LLMs' supervison.
