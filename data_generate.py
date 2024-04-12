@@ -2,6 +2,8 @@ from tqdm import  tqdm
 import pickle as pkl
 import warnings
 from transformers import BertTokenizer, BertModel
+import heapq
+
 
 warnings.filterwarnings("ignore")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -44,6 +46,12 @@ def bert_embeddings(text):
   sentence_embedding = torch.mean(token_vecs, dim=0).cpu()
   return sentence_embedding
 
+def topk_hits(k, scores, user_ids):
+    threhold = heapq.nlargest(k, scores)[-1]
+    l = []
+    for i in range(len(scores)):
+        if scores[i] >= threhold: l.append(user_ids[i])
+    return l
 
 def text_trajectory(df, userid):
     weekdayDict = {
@@ -70,8 +78,8 @@ def text_trajectory(df, userid):
 
     return st_sequence, text_sequence, index
 
-path = ".\dataset\geolife\geolife-dataset_full-20-agents-0.8-normal-portion.tsv"
-df = pd.read_csv(path, sep = " ")
+raw_data_path = ".\dataset\geolife\geolife-dataset_full-20-agents-0.8-normal-portion.tsv"
+df = pd.read_csv(raw_data_path, sep = " ")
 n_neighbors = 1
 
 sampling_ids = torch.load(".\dataset\geolife\sampled_ids.pt")
@@ -86,3 +94,56 @@ for j, uid in enumerate(tqdm(sampling_ids)):
 users = [{'id': user_id[i], 'st_sequence': st_sequence[i], 'text_sequence': text_sequence[i], 'length': len(index[i]), 'label': label[i]} for i in range(len(label))]
 with open(r'C:\Users\HuieL\VScodes\TrajectoryDistiallation\datasets\geolife\data_info.pkl', 'wb') as handle:
     pkl.dump(users, handle)
+
+file = "C:.\dataset\geolife\gpt4_outputs.csv"
+dd = pd.read_csv(file, sep = ",")
+
+k = 20
+scores = [dd.iloc[i]["anomaly_score"] for i in range(len(dd))]
+user_ids = [int(dd.iloc[i]["userid"]) for i in range(len(dd))]
+users = topk_hits(k, scores, user_ids)
+print(users)
+ipdb.set_trace()
+
+
+path = r"C:\Users\HuieL\VScodes\TrajectoryDistiallation\datasets\geolife\gpt4_outputs.csv"
+df = pd.read_csv(path, sep = ",")
+
+exp_ids, exps = [], []
+for i in range(len(df)):
+    if isinstance(df.iloc[i]["llm_explanation"], str):
+        exp = df.iloc[i]["llm_explanation"].replace("[", "").replace("]", "").split(",")
+        exps.append([int(x) for x in exp])
+        exp_ids.append(int(df.iloc[i]["userid"]))
+
+print(exp_ids)
+
+llm_label, llm_attn = [], []
+data = pkl.load(open(r"C:\Users\HuieL\VScodes\TrajectoryDistiallation\datasets\geolife\data_info.pkl", "rb"))
+ids = [data[i]["id"] for i in range(len(data))]
+
+
+for i in range(len(ids)):
+    if ids[i] in users:
+        llm_label.append("abnormal")
+        if ids[i] in exp_ids:
+            llm_attn.append(exps[exp_ids.index(ids[i])])
+        else:
+            llm_attn.append([])
+    else:
+        llm_label.append("normal")
+        llm_attn.append([])
+
+user_id, st_sequence, text_sequence, lens, label = [], [], [], [], []
+for i in tqdm(range(len(data))):
+    user_id.append(int(data[i]["id"]))
+    st_sequence.append(data[i]["st_sequence"])
+    text_sequence.append(data[i]["text_sequence"])
+    lens.append(data[i]["length"])
+    label.append(data[i]["label"])
+
+
+users = [{'id': user_id[i], 'st_sequence': st_sequence[i], 'text_sequence': text_sequence[i], 'length': lens[i], 'label': label[i], "llm_label": llm_label[i], "llm_attn": llm_attn[i]} for i in range(len(label))]
+with open(r'C:\Users\HuieL\VScodes\TrajectoryDistiallation\datasets\geolife\data_info_new.pkl', 'wb') as handle:
+    pkl.dump(users, handle)
+
