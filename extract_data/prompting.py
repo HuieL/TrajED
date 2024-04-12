@@ -11,6 +11,7 @@ T = TypeVar("T")
 class Item:
     trajectory: str
     index: List[int]
+    label: str
     id: Optional[str] = None
     content: Optional[str] = None
 
@@ -27,16 +28,27 @@ def get_prompt(
     task_name: str,
 ):
     if task_name == "question":
-        prompt_filename = "nola_question.prompt"
-    else:
-        prompt_filename = "nola.prompt"
-
-    with open(PROMPTS_ROOT / prompt_filename) as f:
-        prompt_template = f.read().rstrip("\n")
-
-    return_node_text = prompt_template.format(
-            trajectory=task_item.trajectory,
-            index=task_item.index,
-            )
-    
+        prompt_filename = "label.prompt"
+        with open(PROMPTS_ROOT / prompt_filename) as f:
+            prompt_template = f.read().rstrip("\n")
+            return_node_text = prompt_template.format(
+                trajectory=task_item.trajectory,
+                )
+    elif task_name == "quantitative_explanation":
+        prompt_filename = "quantitative_explanation.prompt"
+        with open(PROMPTS_ROOT / prompt_filename) as f:
+            prompt_template = f.read().rstrip("\n")
+            return_node_text = prompt_template.format(
+                trajectory=task_item.trajectory,
+                index=task_item.index,
+                )
+    else: 
+        prompt_filename = "descriptive_explanation.prompt"
+        with open(PROMPTS_ROOT / prompt_filename) as f:
+            prompt_template = f.read().rstrip("\n")
+            return_node_text = prompt_template.format(
+                trajectory=task_item.trajectory,
+                label=task_item.label,
+                )
+            
     return return_node_text
