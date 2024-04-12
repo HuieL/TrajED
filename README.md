@@ -36,4 +36,6 @@ python -m run.py
 # Distill LLMs' reasoning ability to the explanation generator
 python -m distill.py
 ```
+## Generate your own dataset
+You can follow the instruction to use prompts we provided to generate your own datasets.
 
