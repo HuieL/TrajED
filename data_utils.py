@@ -2,10 +2,6 @@ from openai import OpenAI
 import pandas as pd
 import re
 import numpy as np
-from extract_data.prompting import (
-    Item,
-    get_prompt
-)
 
 client = OpenAI(
     # defaults to os.environ.get("OPENAI_API_KEY")
@@ -51,12 +47,3 @@ def text_trajectory(df, userid):
         sequence += f"{dayofweek} {str(time)}, {VenueType}"
 
     return sequence, index
-
-def prompt_single(sequence, index, task_name):
-    prompt_single = get_prompt(Item(sequence, index), task_name)
-    return prompt_single
-
-def prompt_combine(sequence, comparison, task_name):
-    prompt_combine = get_prompt(Item(sequence, comparison), task_name)
-    return prompt_combine
-
