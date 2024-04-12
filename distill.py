@@ -4,31 +4,17 @@ from datasets import load_dataset
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
-    BitsAndBytesConfig, #Problem here
-    TrainingArguments,
     AutoModelForCausalLM,
-    pipeline,
-    logging,
 )
 from peft import LoraConfig
-from trl import SFTTrainer
 from tqdm import tqdm
 
 import pandas as pd
 import numpy as np
-import ipdb
 import transformers
 from datetime import datetime
-
-import pathlib
-from copy import deepcopy
-from typing import List, Optional, Type, TypeVar
-from dataclasses import dataclass
-import heapq
 import csv
 from itertools import zip_longest
-
-from data_utils import chat_gpt
 from peft import prepare_model_for_kbit_training, LoraConfig, get_peft_model
 import warnings
 
@@ -40,7 +26,7 @@ data_files = f"./datasets/{dataset_name}/pair_sup.jsonl"
 #DataFrame: {"input": ..., "output": ...}
 train_dataset = load_dataset('json', data_files=data_files, split='train')  
 
-#################################################Tokenize define:
+################################################# Tokenize define:
 
 def formatting_func(example):
     text = f"### Explanation: {example['output']}"
@@ -72,7 +58,7 @@ tokenizer = AutoTokenizer.from_pretrained(
 tokenizer.pad_token = tokenizer.eos_token
 tokenized_train_dataset = train_dataset.map(generate_and_tokenize_prompt)
 
-#################################################FineTune model using Lora:
+################################################# FineTune model using Lora:
 
 def print_trainable_parameters(model):
     """
@@ -113,7 +99,7 @@ model = get_peft_model(model, config)
 
 #################################################Begin Training:
 project = "trajectory-finetune"
-base_model_name = "llama2-7b-hf"
+base_model_name = "llama2-7b-chat"
 run_name = base_model_name + "-" + project
 output_dir = "./" + run_name
 
@@ -144,5 +130,5 @@ trainer = transformers.Trainer(
             tokenizer, pad_to_multiple_of=8, return_tensors="pt", padding=True),
 )
 
-model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
+model.config.use_cache = False  # Re-enable for inference!
 trainer.train()
