@@ -27,9 +27,6 @@ with open(r"C:\Users\HuieL\VScodes\traj_foundation\data\prompts\aaai2024-outlier
 target = [i for i in target if i in u_id]
 normal = [i for i in u_id if i not in target]
 
-
-
-
 combine_prompts, record_id, explainations, scores, questions = [], [], [], [], []
 
 for i in range(len(target)):
@@ -68,9 +65,10 @@ for i in range(len(normal)):
         record_id.append(normal[i])
         n+=1
 
-
+# Example: geolife dataset
+dataset = geolife_test
 export_data = zip_longest(*[record_id, combine_prompts, questions, explainations, scores], fillvalue = '')
-with open(r'C:\Users\HuieL\VScodes\TrajectoryDistiallation\datasets\prompts\geolife_test.csv', 'w', encoding="UTF-8", newline='') as myfile:
+with open(f'.\datasets\prompts\{dataset}.csv', 'w', encoding="UTF-8", newline='') as myfile:
       wr = csv.writer(myfile)
       wr.writerow(['user_id', 'prompts', 'question', 'explaination', 'score'])
       wr.writerows(export_data)
