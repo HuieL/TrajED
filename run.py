@@ -125,7 +125,7 @@ if __name__ == '__main__':
     parser.add_argument('--random_seed', type=int, default=10)
     parser.add_argument('--batch_size', type=int, default=10)
     parser.add_argument('--epochs', type=int, default=5)
-    parser.add_argument('--lr', type=float, default=10e-5)
+    parser.add_argument('--lr', type=float, default=10e-4)
     #Parameter to Initialize Trajectory Transformer
     parser.add_argument('--num_classes', type=int, default=2)
     parser.add_argument('--num_layers', type=int, default=3)
