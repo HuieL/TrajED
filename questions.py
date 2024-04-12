@@ -12,14 +12,14 @@ from prompting import (
 #Data: type, coor, dayofweek
 
 trajectories, u_id = [], []
-with open(r"C:\Users\HuieL\VScodes\traj_foundation\data\prompts\aaai2024-outlierpaper\geolife\outliers-train-test\combined_prompt_with_hint.txt", 'r') as f:
+with open(r".\dataset\geolife\outliers-train-test\combined_prompt_with_hint.txt", 'r') as f:
     files = f.readlines()
     for line in files:
         if 'Here' in line.split():
             u_id.append(int(line.replace("\n", "").split(":",1)[0].split(" ")[-2]))
             trajectories.append(line.replace("\n", "").split(":",1)[1])
 
-with open(r"C:\Users\HuieL\VScodes\traj_foundation\data\prompts\aaai2024-outlierpaper\geolife\outliers-train-test\groundtruth.txt", 'r') as f:
+with open(".\dataset\geolife\outliers-train-test\groundtruth.txt", 'r') as f:
     files = f.readlines()
     for line in files:
         target = [int(i) for i in line.split(":")[1].replace("[", "").replace("]", "").replace(",", "").split(" ") if i != ""]
