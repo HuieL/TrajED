@@ -1,20 +1,15 @@
 from openai import OpenAI
 import pandas as pd
-import csv
-from itertools import zip_longest
-from tqdm import tqdm
 import re
-import heapq
 import numpy as np
-from prompting_single import (
+from extract_data.prompting import (
     Item,
     get_prompt
 )
 
-
 client = OpenAI(
     # defaults to os.environ.get("OPENAI_API_KEY")
-    api_key="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",
+    api_key="YOUR ACCESS TOKEN HERE",
 )
 
 def chat_gpt(prompt):
@@ -56,7 +51,6 @@ def text_trajectory(df, userid):
         sequence += f"{dayofweek} {str(time)}, {VenueType}"
 
     return sequence, index
-
 
 def prompt_single(sequence, index, task_name):
     prompt_single = get_prompt(Item(sequence, index), task_name)
