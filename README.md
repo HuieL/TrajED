@@ -1,2 +1,5 @@
-# Code of TrajLLM
+# TrajLLM
+
+This repository contains the source code for the paper "TrajLLM: Explanation-Guided Semantic Trajectory Analysis".
+
 
