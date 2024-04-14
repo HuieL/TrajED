@@ -42,7 +42,7 @@ def generate_and_tokenize_prompt(prompt):
     result["labels"] = result["input_ids"].copy()
     return result
 
-base_model_id = "meta-llama/Llama-2-7b-hf"
+base_model_id = "meta-llama/Llama-2-7b-chat-hf"
 model = AutoModelForCausalLM.from_pretrained(
     base_model_id, 
     device_map="cuda")
